@@ -1,0 +1,23 @@
+{
+  "name": "adventures-in-beering-and-telling",
+  "description": "The culmination of my life's work.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Michael Kelly"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Osmose/adventures-in-beering-and-telling.git"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/Osmose/adventures-in-beering-and-telling/blob/master/LICENSE-MIT"
+    }
+  ],
+  "devDependencies": {
+    "connect": "~2.8.5",
+    "grunt": "~0.4.1",
+    "grunt-gh-pages": "~0.7.1"
+  }
+}

@@ -1,0 +1,8 @@
+{
+    "name": "adventures-in-beering-and-telling",
+    "version": "0.1.0",
+    "dependencies": {
+        "toast": "pyrsmk/toast",
+        "adventure": "Osmose/adventure.js"
+    }
+}
