@@ -15,7 +15,7 @@
             adv.say("It was a cold, rainy night. It always is. The story wouldn't be nearly as good if it happened on a sunny afternoon.");
             adv.say("I had known the client for years. She was a good friend; her family took me in when my own kicked me out. And even when I was on the streets, she was still there for me, giving me food and clothes, letting me stay on her couch when I wasn't out on the streets hustling for market share.");
             adv.say("It was a typical story: She was minding her own business, browsing a site someone had linked her to from an email, but she soon noticed some strange-looking ads. They seemed to know more about her than they should've, suggesting things like a present for her brother's birthday. How could they know that it was coming up?");
-            adv.say("That's when she looked in her purse and noticed it: someone had slipper her a tracking cookie. And not just any tracking cookie, but an evercookie. The kind that you just can't get rid of.");
+            adv.say("That's when she looked in her purse and noticed it: someone had slipped her a tracking cookie. And not just any tracking cookie, but an evercookie. The kind that you just can't get rid of.");
             adv.say("I had already given her Ghostery, which handled most other tracking cookies, but this one just wouldn't let go. I knew that we needed something different, and I knew where I could get it.");
             adv.say("I headed down to the Seventh Street webring. Browsers like me weren't always welcome down there; I saw a few 'Best Viewed with Internet Explorer 6' signs. Got a few glares, but I'd been through this dance before. I pulled out Quirks Mode, and people knew to leave me alone.");
         }
@@ -85,7 +85,7 @@
             enter: function(cmd) {
                 if (hasAddon) {
                     adv.say("This time, when I tried the door, it opened immediately. Finally, I could move on!");
-                    adv.say("I walked into the store. The walls will filled with shelves stuffed with addons for almost anything you could imagine, from showing the prices for an item from other sites for comparison, to storing tabs in a tree-structure, to changing the menu icon into a hamburger.");
+                    adv.say("I walked into the store. The walls were filled with shelves stuffed with addons for almost anything you could imagine, from showing the prices for an item from other sites for comparison, to storing tabs in a tree-structure, to changing the menu icon into a hamburger.");
                     adv.say("As I headed to the back of the store, I heard an old man's voice call out to me. I saw a small man standing behind a counter waving to me. As I approached, I realized this was the merchant I had been told about. He was the one who could help me find an addon for my client.");
                     adv.say("So you're the one looking for an addon to get rid of an evercookie, eh?", 'potch');
                     adv.say("How do you know about that?", 'firefox');
