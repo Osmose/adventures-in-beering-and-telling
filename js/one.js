@@ -43,6 +43,14 @@
                 } else {
                     adv.say("I didn't know what I was searching for, and couldn't find anything useful anyway.");
                 }
+            },
+
+            look: function(cmd) {
+                if (cmd.indexOf('trash') !== -1 && (knowsWhereAddonIs || hasAddon)) {
+                    adv.currentRoom.extraCommands.search(cmd);
+                } else {
+                    adv.look();
+                }
             }
         },
         synonyms: {
