@@ -2,17 +2,40 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Adventures in Beering and Telling</title>
+    <title>adventures in beering and telling</title>
+    <style>
+      body {
+        background: #000;
+        color: #EEE;
+        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        font-size: 24px;
+      }
 
-    <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="css/styles.css">
+      a {
+        color: #FFF;
+      }
+
+      #container {
+        margin: 20px auto;
+        width: 960px;
+      }
+
+      dd {
+        border-left: 3px solid #FFF;
+        padding-left: 10px;
+        margin-bottom: 40px;
+      }
+    </style>
   </head>
   <body>
-    <div id="adventure" class="container"></div>
-    <div id="endmsg"><a id="endmsglink" href="https://wiki.mozilla.org/Webdev/Beer_And_Tell/">"...Beer and Tell."</a></div>
-
-    <script src="components/toast/src/toast.js"></script>
-    <script src="js/adventure.js"></script>
-    <script src="js/bootstrap.js"></script>
+    <article id="container">
+      <h1>adventures in beering and telling</h1>
+      <dl>
+        <dt><a href="1">one</a></dt>
+        <dd><a href="http://www.youtube.com/watch?v=jyEV0OHlgaE&amp;list=PLF414DF99808CDE43&amp;index=1">recommended music</a></dd>
+        <dt><a href="https://wiki.mozilla.org/Webdev/Beer_And_Tell/">"...Beer and Tell."</a></div></dt>
+        <dd><a href="http://youtu.be/Q_myYG0GxcQ">the matter at hand</a></dd>
+      </dl>
+    </article>
   </body>
 </html>
