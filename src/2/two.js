@@ -1,4 +1,4 @@
-;(function(ROT) {
+;(function(ROT, makeColor) {
     'use strict';
 
     var KEYS = {
@@ -6,6 +6,12 @@
         down: 40,
         left: 37,
         right: 39
+    };
+
+    var DEFAULT_COLOR = '#EEE';
+    var COLORS = {
+        '.': '#EEE',
+        '@': '#FF0'
     };
 
 
@@ -23,8 +29,11 @@
         this.maps = {};
         this.map = null;
         this.floor = null;
+        this.needsRedraw = true;
 
         this.player = new Player(this);
+
+        this.fov = new ROT.FOV.PreciseShadowcasting(this.lightPasses.bind(this));
 
         this.scheduler = new ROT.Scheduler.Simple();
         this.scheduler.add(this.player, true);
@@ -65,17 +74,36 @@
             return map;
         },
 
+        lightPasses: function(x, y) {
+            return this.map.tiles[x][y] == '.';
+        },
+
         draw: function() {
-            this.drawMap();
-            this.player.draw();
+            if (this.needsRedraw) {
+                this.display.clear();
+                this.drawMap();
+                this.player.draw();
+                this.needsRedraw = false;
+            }
         },
 
         drawMap: function() {
-            forEachTile(this.map.tiles, function(x, y, value) {
-                if (value) {
-                    this.display.draw(x, y, value);
-                }
-            }, this);
+            for (var k = 0; k < this.map.seen.length; k++) {
+                var pos = parseCoords(this.map.seen[k]);
+                var tile = this.map.tiles[pos.x][pos.y];
+                this.display.draw(pos.x, pos.y, tile, color(tile).darken(6 / 8).rgbString());
+            }
+            this.fov.compute(this.player.x, this.player.y, 8, this.drawTile.bind(this));
+        },
+
+        drawTile: function(x, y, r, visibility) {
+            var c = coords(x, y);
+            if (this.map.seen.indexOf(c) === -1) {
+                this.map.seen.push(c);
+            }
+
+            var tile = this.map.tiles[x][y];
+            this.display.draw(x, y, tile, color(tile).darken((r - 2) / 8).rgbString());
         }
     };
 
@@ -88,11 +116,12 @@
 
     Player.prototype = {
         draw: function() {
-            this.two.display.draw(this.x, this.y, '@', '#FF0');
+            this.two.display.draw(this.x, this.y, '@', COLORS['@']);
         },
 
         act: function() {
             this.two.engine.lock();
+            this.two.draw(); // Draw once it's time for player interaction again.
             window.addEventListener('keydown', this);
         },
 
@@ -113,11 +142,9 @@
             var newX = this.x + dx;
             var newY = this.y + dy;
             if (this.two.map.open.indexOf(coords(newX, newY)) !== -1) {
-                this.two.display.draw(this.x, this.y,
-                                      this.two.map.tiles[this.x][this.y]);
                 this.x = newX;
                 this.y = newY;
-                this.draw();
+                this.two.needsRedraw = true;
             }
 
             window.removeEventListener('keydown', this);
@@ -135,7 +162,7 @@
 
     // Utils
     function emptyMap(width, height) {
-        var map = {open: [], tiles: []};
+        var map = {open: [], tiles: [], seen: []};
         for (var x = 0; x < width; x++) {
             map.tiles.push([]);
             for (var y = 0; y < height; y++) {
@@ -172,4 +199,8 @@
     function coords(x, y) {
         return x + ',' + y;
     }
-})(ROT);
+
+    function color(tile) {
+        return COLORS[tile] ? makeColor(COLORS[tile]) : makeColor(DEFAULT_COLOR);
+    }
+})(ROT, Color);
