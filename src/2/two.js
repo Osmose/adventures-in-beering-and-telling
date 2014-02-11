@@ -11,7 +11,8 @@
     var DEFAULT_COLOR = '#EEE';
     var COLORS = {
         '.': '#EEE',
-        '@': '#FF0'
+        '@': '#FF0',
+        '!': '#F0F'
     };
 
 
@@ -30,12 +31,14 @@
         this.map = null;
         this.floor = null;
         this.needsRedraw = true;
+        this.entities = [];
+        this.visibleCoords = [];
 
         this.player = new Player(this);
 
         this.fov = new ROT.FOV.PreciseShadowcasting(this.lightPasses.bind(this));
 
-        this.scheduler = new ROT.Scheduler.Simple();
+        this.scheduler = new ROT.Scheduler.Speed();
         this.scheduler.add(this.player, true);
         this.engine = new ROT.Engine(this.scheduler);
     }
@@ -51,12 +54,31 @@
             this.engine.start();
         },
 
+        addEntity: function(Type) {
+            var entity = new Type(this);
+            var p = parseCoords(chooseRand(this.map.open));
+            entity.x = p.x;
+            entity.y = p.y;
+            this.entities.push(entity);
+            this.scheduler.add(entity, true);
+        },
+
         enterFloor: function(floor) {
+            for (var k = 0; k < this.entities.length; k++) {
+                this.scheduler.remove(this.entities[k]);
+            }
+            this.entities = [];
+
             this.floor = floor;
             if (!this.maps[floor]) {
                 this.maps[floor] = this.generateMap();
             }
             this.map = this.maps[floor];
+
+            var entityCount = random(3, 9);
+            for (k = 0; k < entityCount; k++) {
+                this.addEntity(Popup);
+            }
         },
 
         generateMap: function() {
@@ -75,7 +97,19 @@
         },
 
         lightPasses: function(x, y) {
-            return this.map.tiles[x][y] == '.';
+            return this.inBounds(x, y) && this.map.tiles[x][y] == '.';
+        },
+
+        inBounds: function(x, y) {
+            return x >= 0 && x < this.mapWidth && y >= 0 && y < this.mapHeight;
+        },
+
+        passable: function(x, y) {
+            if (this.map.tiles[x][y] != '.') {
+                return false;
+            }
+
+            return true;
         },
 
         draw: function() {
@@ -83,6 +117,12 @@
                 this.display.clear();
                 this.drawMap();
                 this.player.draw();
+                for (var k = 0; k < this.entities.length; k++) {
+                    var entity = this.entities[k];
+                    if (this.visibleCoords.indexOf(coords(entity.x, entity.y)) !== -1) {
+                        entity.draw();
+                    }
+                }
                 this.needsRedraw = false;
             }
         },
@@ -93,11 +133,14 @@
                 var tile = this.map.tiles[pos.x][pos.y];
                 this.display.draw(pos.x, pos.y, tile, color(tile).darken(6 / 8).rgbString());
             }
+
+            this.visibleCoords = [];
             this.fov.compute(this.player.x, this.player.y, 8, this.drawTile.bind(this));
         },
 
         drawTile: function(x, y, r, visibility) {
             var c = coords(x, y);
+            this.visibleCoords.push(c);
             if (this.map.seen.indexOf(c) === -1) {
                 this.map.seen.push(c);
             }
@@ -125,6 +168,10 @@
             window.addEventListener('keydown', this);
         },
 
+        getSpeed: function() {
+            return 100;
+        },
+
         handleEvent: function(e) {
             var dx = 0;
             var dy = 0;
@@ -137,11 +184,13 @@
                 dx = -1;
             } else if (e.keyCode === KEYS.right) {
                 dx = 1;
+            } else {
+                return;
             }
 
             var newX = this.x + dx;
             var newY = this.y + dy;
-            if (this.two.map.open.indexOf(coords(newX, newY)) !== -1) {
+            if (this.two.passable(newX, newY)) {
                 this.x = newX;
                 this.y = newY;
                 this.two.needsRedraw = true;
@@ -149,6 +198,38 @@
 
             window.removeEventListener('keydown', this);
             this.two.engine.unlock();
+        }
+    };
+
+
+    function Popup(two) {
+        this.two = two;
+        this.x = 0;
+        this.y = 0;
+    }
+
+    Popup.prototype = {
+        getSpeed: function() {
+            return 50;
+        },
+
+        draw: function() {
+            this.two.display.draw(this.x, this.y, '!', COLORS['!']);
+        },
+
+        act: function() {
+            // Only bother if the player is within a straight line range.
+            var player = this.two.player;
+            if (this.two.visibleCoords.indexOf(coords(this.x, this.y)) !== -1) {
+                var path = astarPath(this.x, this.y, player.x, player.y,
+                                     this.two.passable.bind(this.two), {topology: 4});
+                path.shift();
+                if (path.length > 0) {
+                    this.x = path[0].x;
+                    this.y = path[0].y;
+                    this.two.needsRedraw = true;
+                }
+            }
         }
     };
 
@@ -180,12 +261,12 @@
         }
     }
 
-    function randMax(max) {
-        return Math.floor(ROT.RNG.getUniform() * max);
+    function random(min, max) {
+        return Math.floor(ROT.RNG.getUniform() * (max - min)) + min;
     }
 
     function chooseRand(list) {
-        return list[randMax(list.length)];
+        return list[random(0, list.length)];
     }
 
     function parseCoords(coords) {
@@ -202,5 +283,16 @@
 
     function color(tile) {
         return COLORS[tile] ? makeColor(COLORS[tile]) : makeColor(DEFAULT_COLOR);
+    }
+
+    function astarPath(startX, startY, endX, endY, passable, opts) {
+        var astar = new ROT.Path.AStar(endX, endY, passable, opts);
+        var path = [];
+        astar.compute(startX, startY, function(x, y) {
+            console.log('test');
+            path.push({x: x, y: y});
+        });
+
+        return path;
     }
 })(ROT, Color);
